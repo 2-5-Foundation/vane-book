@@ -1,0 +1,9 @@
+[book]
+authors = ["Shankar"]
+language = "en"
+multilingual = false
+src = "src"
+title = "vane"
+
+[build]
+build-dir = "docs"
