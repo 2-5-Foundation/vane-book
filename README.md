@@ -2,7 +2,7 @@
 
 ## Book about vane
 
-   - [Follow this to access the book](https://globalboost.github.io/impactprotocol-book/)
+   - [Follow this to access the book](https://2-5-foundation.github.io/vane-book/)
    - [Our Github Repo](https://github.com/2-5-Foundation)
 
 ## Work on adding an improving this document 
