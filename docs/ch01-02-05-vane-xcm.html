@@ -172,6 +172,52 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="vane-xcm"><a class="header" href="#vane-xcm">Vane-XCM</a></h1>
+<h2 id="pallet-calls"><a class="header" href="#pallet-calls">Pallet Calls</a></h2>
+<p>Certainly, let's go through the callable methods defined in the provided Rust code for the <code>Pallet</code> module in detail:</p>
+<ol>
+<li>
+<p><strong><code>vane_transfer</code></strong>:</p>
+<ul>
+<li><strong>Description</strong>:
+<ul>
+<li>This function is responsible for initiating a transfer from the caller's account to the specified recipient account.</li>
+<li>It first ensures that the caller has the proper authorization (through <code>ensure_signed</code>).</li>
+<li>Depending on the <code>currency</code> type currently we have <code>Token::Dot</code> and in future we will be supporting <code>Token::Usdt</code>, it performs specific actions.</li>
+<li>If <code>currency</code> is <code>Token::Dot</code>, it initiates an XCM (Cross-Chain Message) transfer.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong><code>vane_confirm</code></strong>:</p>
+<ul>
+<li><strong>Description</strong>:
+<ul>
+<li>This function is used for confirming a transfer initiated by another party.</li>
+<li>It checks the caller's authorization using <code>ensure_signed</code>.</li>
+<li>If the caller is the payer, it checks if the payee has already confirmed. If not, it adds the payer to the list of confirmed signers and performs various operations.</li>
+<li>Once the caller is the validated as payee, it adds the payee to the list of confirmed signers.</li>
+<li>It derives multi-identifiers for confirmed and allowed signers, ensuring they match.</li>
+<li>If the multi-identifiers match, it dispatches an XCM call for confirmation.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong><code>test_storing</code></strong>:</p>
+<ul>
+<li><strong>Description</strong>:
+<ul>
+<li>This function allows the caller to store a number associated with a specific account in a storage map.</li>
+<li>It ensures that the caller is authorized using <code>ensure_signed</code>.</li>
+<li>It stores the provided <code>num</code> associated with the provided <code>acc</code> in the <code>TestStorage</code> storage map.</li>
+<li>It emits an <code>Event::TestStored</code> event to signal that the storing operation was successful.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>These callable methods are part of the <code>Pallet</code> and provide functionality related to multi-signature transfers, confirmation of transfers, and a simple storage mechanism for testing purposes. Depending on the specific use case and configuration of your Substrate runtime, these methods may have different behavior or additional requirements.</p>
 
                     </main>
 
@@ -196,6 +242,22 @@
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 
