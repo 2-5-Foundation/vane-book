@@ -172,6 +172,93 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="vane-order"><a class="header" href="#vane-order">Vane-Order</a></h1>
+<h2 id="module-overview"><a class="header" href="#module-overview">Module Overview</a></h2>
+<p>This module defines callable functions for placing and managing orders. Users can place orders for products, and these orders are associated with both the payer and the seller. Order information is stored in the runtime's storage.## Usage
+This module can be integrated into a Substrate runtime to enable decentralized e-commerce functionality. Users can place and manage orders for products registered in the system. The module interacts with other pallets and libraries to verify product existence and handle order placement and management.</p>
+<p>Please note that the functionality of this module is dependent on the configuration and interactions with other pallets and modules within the Substrate runtime. It should be used in conjunction with other components to create a complete e-commerce system.</p>
+<h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
+<p>The behavior of this module can be customized through a configuration trait <code>Config</code>. The configuration trait specifies the runtime's requirements and includes the following traits:</p>
+<ul>
+<li><code>frame_system::Config</code>: Required for system-related functionality.</li>
+<li><code>vane_register::Config</code>: Required for interacting with the product registration system.</li>
+<li><code>Currency&lt;Self::AccountId&gt;</code>: The currency type used for transactions in the runtime.</li>
+</ul>
+<h2 id="storage"><a class="header" href="#storage">Storage</a></h2>
+<ol>
+<li>
+<p><strong>PayerOrder</strong>:</p>
+<ul>
+<li><strong>Description</strong>: This storage item is an unbounded map that associates the payer's account with a vector of orders. Each order is represented by a struct <code>Order&lt;T&gt;</code>. Orders are indexed by the payer's account.</li>
+<li><strong>Storage Type</strong>: <code>StorageMap&lt;_, Blake2_128Concat, T::AccountId, Vec&lt;Order&lt;T&gt;&gt;, ValueQuery&gt;</code></li>
+</ul>
+</li>
+<li>
+<p><strong>PayeeOrderRef</strong>:</p>
+<ul>
+<li><strong>Description</strong>: This storage item is an unbounded map that associates the seller's account with a vector of tuples. Each tuple contains the payer's account, an item ID, and an order number. This storage is used to reference orders for a specific payee.</li>
+<li><strong>Storage Type</strong>: <code>StorageMap&lt;_, Blake2_128Concat, T::AccountId, Vec&lt;(T::AccountId, u32, u32)&gt;, ValueQuery&gt;</code></li>
+</ul>
+</li>
+</ol>
+<h2 id="events"><a class="header" href="#events">Events</a></h2>
+<ol>
+<li>
+<p><strong>OrderPlaced</strong>:</p>
+<ul>
+<li><strong>Description</strong>: This event is emitted when an order is successfully placed. It includes information about the buyer, the item, the order number, and the seller.</li>
+<li><strong>Event Fields</strong>:
+<ul>
+<li><code>buyer</code>: The account of the buyer who placed the order.</li>
+<li><code>item_id</code>: The ID of the product or item being ordered.</li>
+<li><code>order_no</code>: The order number associated with the placed order.</li>
+<li><code>seller</code>: The account of the seller from whom the order was placed.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>OrderCancelled</strong>:</p>
+<ul>
+<li><strong>Description</strong>: This event is emitted when an order is cancelled.</li>
+</ul>
+</li>
+</ol>
+<h2 id="errors"><a class="header" href="#errors">Errors</a></h2>
+<ol>
+<li><strong>ProductDontExist</strong>:
+<ul>
+<li><strong>Description</strong>: An error indicating that the requested product does not exist in the product registration system.</li>
+</ul>
+</li>
+<li><strong>UnexpectedError</strong>:
+<ul>
+<li><strong>Description</strong>: An error indicating an unexpected or system-level error.</li>
+</ul>
+</li>
+</ol>
+<h2 id="callable-functions"><a class="header" href="#callable-functions">Callable Functions</a></h2>
+<h3 id="place_order"><a class="header" href="#place_order"><code>place_order</code></a></h3>
+<ul>
+<li>
+<p><strong>Parameters</strong>:</p>
+<ul>
+<li><code>origin</code>: An <code>OriginFor&lt;T&gt;</code> representing the caller's origin.</li>
+<li><code>item_id</code>: A <code>u32</code> representing the ID of the item being ordered.</li>
+<li><code>seller_id</code>: A <code>T::AccountId</code> representing the account of the seller.</li>
+</ul>
+</li>
+<li>
+<p><strong>Description</strong>:</p>
+<ul>
+<li>This function allows a user to place an order for a specific item from a seller.</li>
+<li>The caller's identity is verified, and the product associated with the seller is retrieved from the product registration system.</li>
+<li>The function checks if the requested product exists.</li>
+<li>If the product exists, it constructs a new order and associates it with both the payer and seller.</li>
+<li>The order information is stored in the runtime's storage for both payer and seller references.</li>
+<li>An event is emitted to signify that the order has been successfully placed.</li>
+</ul>
+</li>
+</ul>
 
                     </main>
 
@@ -202,22 +289,6 @@
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script>
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 

@@ -64,8 +64,6 @@ The behavior of this module can be customized through a configuration trait `Con
   - Payer account information is stored in the runtime's storage.
   - An event is emitted to signify that the payer has been successfully registered.
 
-- **Weight**: 10
-
 ### `register_payee`
 
 - **Parameters**:

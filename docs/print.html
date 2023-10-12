@@ -180,8 +180,235 @@ Vane acts as an extension product and safety layer on Ethereum, Polkadot and Bit
 <div style="break-before: page; page-break-before: always;"></div><h1 id="components"><a class="header" href="#components">Components</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="pallets"><a class="header" href="#pallets">Pallets</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="vane-order"><a class="header" href="#vane-order">Vane-Order</a></h1>
+<h2 id="module-overview"><a class="header" href="#module-overview">Module Overview</a></h2>
+<p>This module defines callable functions for placing and managing orders. Users can place orders for products, and these orders are associated with both the payer and the seller. Order information is stored in the runtime's storage.## Usage
+This module can be integrated into a Substrate runtime to enable decentralized e-commerce functionality. Users can place and manage orders for products registered in the system. The module interacts with other pallets and libraries to verify product existence and handle order placement and management.</p>
+<p>Please note that the functionality of this module is dependent on the configuration and interactions with other pallets and modules within the Substrate runtime. It should be used in conjunction with other components to create a complete e-commerce system.</p>
+<h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
+<p>The behavior of this module can be customized through a configuration trait <code>Config</code>. The configuration trait specifies the runtime's requirements and includes the following traits:</p>
+<ul>
+<li><code>frame_system::Config</code>: Required for system-related functionality.</li>
+<li><code>vane_register::Config</code>: Required for interacting with the product registration system.</li>
+<li><code>Currency&lt;Self::AccountId&gt;</code>: The currency type used for transactions in the runtime.</li>
+</ul>
+<h2 id="storage"><a class="header" href="#storage">Storage</a></h2>
+<ol>
+<li>
+<p><strong>PayerOrder</strong>:</p>
+<ul>
+<li><strong>Description</strong>: This storage item is an unbounded map that associates the payer's account with a vector of orders. Each order is represented by a struct <code>Order&lt;T&gt;</code>. Orders are indexed by the payer's account.</li>
+<li><strong>Storage Type</strong>: <code>StorageMap&lt;_, Blake2_128Concat, T::AccountId, Vec&lt;Order&lt;T&gt;&gt;, ValueQuery&gt;</code></li>
+</ul>
+</li>
+<li>
+<p><strong>PayeeOrderRef</strong>:</p>
+<ul>
+<li><strong>Description</strong>: This storage item is an unbounded map that associates the seller's account with a vector of tuples. Each tuple contains the payer's account, an item ID, and an order number. This storage is used to reference orders for a specific payee.</li>
+<li><strong>Storage Type</strong>: <code>StorageMap&lt;_, Blake2_128Concat, T::AccountId, Vec&lt;(T::AccountId, u32, u32)&gt;, ValueQuery&gt;</code></li>
+</ul>
+</li>
+</ol>
+<h2 id="events"><a class="header" href="#events">Events</a></h2>
+<ol>
+<li>
+<p><strong>OrderPlaced</strong>:</p>
+<ul>
+<li><strong>Description</strong>: This event is emitted when an order is successfully placed. It includes information about the buyer, the item, the order number, and the seller.</li>
+<li><strong>Event Fields</strong>:
+<ul>
+<li><code>buyer</code>: The account of the buyer who placed the order.</li>
+<li><code>item_id</code>: The ID of the product or item being ordered.</li>
+<li><code>order_no</code>: The order number associated with the placed order.</li>
+<li><code>seller</code>: The account of the seller from whom the order was placed.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>OrderCancelled</strong>:</p>
+<ul>
+<li><strong>Description</strong>: This event is emitted when an order is cancelled.</li>
+</ul>
+</li>
+</ol>
+<h2 id="errors"><a class="header" href="#errors">Errors</a></h2>
+<ol>
+<li><strong>ProductDontExist</strong>:
+<ul>
+<li><strong>Description</strong>: An error indicating that the requested product does not exist in the product registration system.</li>
+</ul>
+</li>
+<li><strong>UnexpectedError</strong>:
+<ul>
+<li><strong>Description</strong>: An error indicating an unexpected or system-level error.</li>
+</ul>
+</li>
+</ol>
+<h2 id="callable-functions"><a class="header" href="#callable-functions">Callable Functions</a></h2>
+<h3 id="place_order"><a class="header" href="#place_order"><code>place_order</code></a></h3>
+<ul>
+<li>
+<p><strong>Parameters</strong>:</p>
+<ul>
+<li><code>origin</code>: An <code>OriginFor&lt;T&gt;</code> representing the caller's origin.</li>
+<li><code>item_id</code>: A <code>u32</code> representing the ID of the item being ordered.</li>
+<li><code>seller_id</code>: A <code>T::AccountId</code> representing the account of the seller.</li>
+</ul>
+</li>
+<li>
+<p><strong>Description</strong>:</p>
+<ul>
+<li>This function allows a user to place an order for a specific item from a seller.</li>
+<li>The caller's identity is verified, and the product associated with the seller is retrieved from the product registration system.</li>
+<li>The function checks if the requested product exists.</li>
+<li>If the product exists, it constructs a new order and associates it with both the payer and seller.</li>
+<li>The order information is stored in the runtime's storage for both payer and seller references.</li>
+<li>An event is emitted to signify that the order has been successfully placed.</li>
+</ul>
+</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="vane-payment"><a class="header" href="#vane-payment">Vane-Payment</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="vane-register"><a class="header" href="#vane-register">Vane-Register</a></h1>
+<h2 id="introduction-1"><a class="header" href="#introduction-1">Introduction</a></h2>
+<p>The module defines callabale methods that facilitates the registration of both payers and payees in a decentralized system. Users can register as either payers or payees, and additional functionalities include product registration by payees. This module interacts with various other Substrate pallets and provides custom storage, events, errors, and callable functions.
+This module can be integrated into a Substrate runtime to enable user registration and product management functionalities in a decentralized system. Users can register as payers or payees, and payees can register and update their product offerings. The module also emits events to track user registration.</p>
+<h2 id="configuration-1"><a class="header" href="#configuration-1">Configuration</a></h2>
+<p>The behavior of this module can be customized through a configuration trait <code>Config</code>. The configuration trait specifies the runtime's requirements and includes the following traits:</p>
+<ul>
+<li><code>frame_system::Config</code>: Required for system-related functionality.</li>
+<li><code>Currency&lt;Self::AccountId&gt;</code>: The currency type used for transactions in the runtime.</li>
+<li><code>RuntimeEvent</code>: Events generated by this module.</li>
+</ul>
+<h2 id="storage-1"><a class="header" href="#storage-1">Storage</a></h2>
+<ol>
+<li>
+<p><strong>PayeeStorage</strong>:</p>
+<ul>
+<li><strong>Description</strong>: This storage item is an unbounded map that associates a payee's account with a <code>PayeeAccountProfile&lt;T&gt;</code>. Each <code>PayeeAccountProfile</code> contains information about the payee, including name, location, Instagram link, and registration time.</li>
+<li><strong>Storage Type</strong>: <code>StorageMap&lt;_, Blake2_128, T::AccountId, PayeeAccountProfile&lt;T&gt;&gt;</code></li>
+</ul>
+</li>
+<li>
+<p><strong>PayerStorage</strong>:</p>
+<ul>
+<li><strong>Description</strong>: This storage item is an unbounded map that associates a payer's account with a <code>PayerAccountProfile&lt;T&gt;</code>. Each <code>PayerAccountProfile</code> contains information about the payer, including name, KYC (Know Your Customer) information, email, Vane ID, and registration time.</li>
+<li><strong>Storage Type</strong>: <code>StorageMap&lt;_, Blake2_128, T::AccountId, PayerAccountProfile&lt;T&gt;&gt;</code></li>
+</ul>
+</li>
+<li>
+<p><strong>PayeeProducts</strong>:</p>
+<ul>
+<li><strong>Description</strong>: This storage item is an unbounded map that associates a payee's account with a vector of <code>ProductProfile&lt;T&gt;</code>. Each <code>ProductProfile</code> represents a product registered by the payee and contains details such as product ID, image URL, price, and seller's account.</li>
+<li><strong>Storage Type</strong>: <code>StorageMap&lt;_, Blake2_128Concat, T::AccountId, Vec&lt;ProductProfile&lt;T&gt;&gt;, ValueQuery&gt;</code></li>
+</ul>
+</li>
+</ol>
+<h2 id="events-1"><a class="header" href="#events-1">Events</a></h2>
+<ol>
+<li>
+<p><strong>PayerRegistered</strong>:</p>
+<ul>
+<li><strong>Description</strong>: This event is emitted when a payer is successfully registered. It includes the payer's account ID and the registration time.</li>
+<li><strong>Event Fields</strong>:
+<ul>
+<li><code>id</code>: The account ID of the registered payer.</li>
+<li><code>time</code>: The block number indicating the registration time.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>PayeeRegistered</strong>:</p>
+<ul>
+<li><strong>Description</strong>: This event is emitted when a payee is successfully registered. It includes the payee's account ID and the registration time.</li>
+<li><strong>Event Fields</strong>:
+<ul>
+<li><code>id</code>: The account ID of the registered payee.</li>
+<li><code>time</code>: The block number indicating the registration time.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="errors-1"><a class="header" href="#errors-1">Errors</a></h2>
+<ol>
+<li><strong>AccountAlreadyRegistered</strong>:
+<ul>
+<li><strong>Description</strong>: An error indicating that the account being registered (payer or payee) is already registered in the system.</li>
+</ul>
+</li>
+<li><strong>UserIsNotRegistered</strong>:
+<ul>
+<li><strong>Description</strong>: An error indicating that the user attempting to perform an operation is not registered in the system.</li>
+</ul>
+</li>
+</ol>
+<h2 id="callable-functions-1"><a class="header" href="#callable-functions-1">Callable Functions</a></h2>
+<h3 id="register_payer"><a class="header" href="#register_payer"><code>register_payer</code></a></h3>
+<ul>
+<li>
+<p><strong>Parameters</strong>:</p>
+<ul>
+<li><code>origin</code>: An <code>OriginFor&lt;T&gt;</code> representing the caller's origin.</li>
+<li><code>name</code>: An optional <code>Vec&lt;u8&gt;</code> representing the payer's name.</li>
+<li><code>email</code>: An optional <code>Vec&lt;u8&gt;</code> representing the payer's email.</li>
+<li><code>kyc</code>: An optional <code>Vec&lt;u8&gt;</code> representing KYC (Know Your Customer) information.</li>
+</ul>
+</li>
+<li>
+<p><strong>Description</strong>:</p>
+<ul>
+<li>This function allows a user to register as a payer in the system. The caller's identity is verified, and if the payer is not already registered, the registration is completed.</li>
+<li>The payer's Vane ID is generated from a hash of their KYC information.</li>
+<li>Payer account information is stored in the runtime's storage.</li>
+<li>An event is emitted to signify that the payer has been successfully registered.</li>
+</ul>
+</li>
+</ul>
+<h3 id="register_payee"><a class="header" href="#register_payee"><code>register_payee</code></a></h3>
+<ul>
+<li>
+<p><strong>Parameters</strong>:</p>
+<ul>
+<li><code>origin</code>: An <code>OriginFor&lt;T&gt;</code> representing the caller's origin.</li>
+<li><code>name</code>: A <code>Vec&lt;u8&gt;</code> representing the payee's name.</li>
+<li><code>ig_link</code>: A <code>Vec&lt;u8&gt;</code> representing the payee's Instagram link.</li>
+<li><code>location</code>: A <code>Vec&lt;u8&gt;</code> representing the payee's location.</li>
+</ul>
+</li>
+<li>
+<p><strong>Description</strong>:</p>
+<ul>
+<li>This function allows a user to register as a payee in the system. The caller's identity is verified, and if the payee is not already registered, the registration is completed.</li>
+<li>Payee account information is stored in the runtime's storage.</li>
+<li>An event is emitted to signify that the payee has been successfully registered.</li>
+</ul>
+</li>
+</ul>
+<h3 id="update_products"><a class="header" href="#update_products"><code>update_products</code></a></h3>
+<ul>
+<li>
+<p><strong>Parameters</strong>:</p>
+<ul>
+<li><code>origin</code>: An <code>OriginFor&lt;T&gt;</code> representing the caller's origin.</li>
+<li><code>product_id</code>: A <code>u32</code> representing the ID of the product.</li>
+<li><code>link</code>: A <code>Vec&lt;u8&gt;</code> representing the product's URL link.</li>
+<li><code>amount</code>: The price of the product.</li>
+<li><code>image_url</code>: An optional <code>Vec&lt;u8&gt;</code> representing the product's image URL.</li>
+</ul>
+</li>
+<li>
+<p><strong>Description</strong>:</p>
+<ul>
+<li>This function allows a registered payee to update and add products to their profile.</li>
+<li>The caller's identity is verified, and the system checks if the payee is registered.</li>
+<li>A new <code>ProductProfile</code> is created with the provided product information and added to the payee's list of products.</li>
+<li>Product information includes the product's ID, image URL, price, and seller's account.</li>
+<li>The added product is stored in the runtime's storage.</li>
+<li>This function enables payees to manage their product offerings.</li>
+</ul>
+</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="vane-wallet-less"><a class="header" href="#vane-wallet-less">Vane-Wallet-Less</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="vane-xcm"><a class="header" href="#vane-xcm">Vane-XCM</a></h1>
 <h2 id="pallet-calls"><a class="header" href="#pallet-calls">Pallet Calls</a></h2>
@@ -248,22 +475,6 @@ Vane acts as an extension product and safety layer on Ethereum, Polkadot and Bit
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script>
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 
